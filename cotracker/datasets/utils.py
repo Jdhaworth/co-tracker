@@ -34,14 +34,19 @@ def collate_fn(batch):
     """
     Collate function for video tracks data.
     """
+    batch = [b for b in batch if b is not None]
+    if len(batch) == 0:
+        return None
     video = torch.stack([b.video for b in batch], dim=0)
     trajectory = torch.stack([b.trajectory for b in batch], dim=0)
     visibility = torch.stack([b.visibility for b in batch], dim=0)
-    query_points = segmentation = None
+    query_points = segmentation = valid = None
     if batch[0].query_points is not None:
         query_points = torch.stack([b.query_points for b in batch], dim=0)
     if batch[0].segmentation is not None:
         segmentation = torch.stack([b.segmentation for b in batch], dim=0)
+    if batch[0].valid is not None:
+        valid = torch.stack([b.valid for b in batch], dim=0)
     seq_name = [b.seq_name for b in batch]
 
     return CoTrackerData(
@@ -51,6 +56,7 @@ def collate_fn(batch):
         segmentation=segmentation,
         seq_name=seq_name,
         query_points=query_points,
+        valid=valid,
     )
 
 

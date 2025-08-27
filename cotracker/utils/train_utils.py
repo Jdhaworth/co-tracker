@@ -35,55 +35,16 @@ def get_eval_dataloader(dataset_root, ds_name):
     from cotracker.datasets.tap_vid_datasets import TapVidDataset
 
     collate_fn_local = collate_fn
-    if ds_name == "dynamic_replica":
-        from cotracker.datasets.dr_dataset import DynamicReplicaDataset
-
-        eval_dataset = DynamicReplicaDataset(
-            root=os.path.join(dataset_root, "dynamic_replica"),
-            sample_len=300,
-            only_first_n_samples=1,
-            rgbd_input=False,
-        )
-    elif ds_name == "tapvid_davis_first":
-        data_root = os.path.join(dataset_root, "tapvid/tapvid_davis/tapvid_davis.pkl")
+    if ds_name == "tapvid_davis_first":
         eval_dataset = TapVidDataset(
-            dataset_type="davis", data_root=data_root, queried_first=True
+            dataset_type="davis", data_root="/home/imerse/cotracker/data/tapvid/tapvid_davis/tapvid_davis.pkl", queried_first=True
         )
     elif ds_name == "tapvid_davis_strided":
-        data_root = os.path.join(dataset_root, "tapvid/tapvid_davis/tapvid_davis.pkl")
         eval_dataset = TapVidDataset(
-            dataset_type="davis", data_root=data_root, queried_first=False
+            dataset_type="davis", data_root="/home/imerse/cotracker/data/tapvid/tapvid_davis/tapvid_davis.pkl", queried_first=False
         )
-    elif ds_name == "tapvid_kinetics_first":
-        eval_dataset = TapVidDataset(
-            dataset_type="kinetics",
-            data_root=os.path.join(dataset_root, "tapvid", "tapvid_kinetics"),
-        )
-    elif ds_name == "tapvid_stacking":
-        eval_dataset = TapVidDataset(
-            dataset_type="stacking",
-            data_root=os.path.join(
-                dataset_root, "tapvid", "tapvid_rgb_stacking", "tapvid_rgb_stacking.pkl"
-            ),
-        )
-    elif ds_name == "tapvid_robotap":
-        eval_dataset = TapVidDataset(
-            dataset_type="robotap",
-            data_root=os.path.join(dataset_root, "tapvid", "tapvid_robotap"),
-        )
-    elif ds_name == "kubric":
-        from cotracker.datasets.kubric_movif_dataset import KubricMovifDataset
-
-        eval_dataset = KubricMovifDataset(
-            data_root=os.path.join(
-                args.dataset_root, "kubric/kubric_movi_f_120_frames_dense/movi_f"
-            ),
-            traj_per_sample=1024,
-            use_augs=False,
-            split="valid",
-            sample_vis_1st_frame=True,
-        )
-        collate_fn_local = collate_fn_train
+    else:
+        raise ValueError(f"Unsupported dataset: {ds_name}")
     eval_dataloader_dr = torch.utils.data.DataLoader(
         eval_dataset,
         batch_size=1,
@@ -159,7 +120,7 @@ def run_test_eval(evaluator, model, dataloaders, writer, step, query_random=Fals
             num_uniformly_sampled_pts = 100
 
         predictor = EvaluationPredictor(
-            model.module.module,
+            model,
             grid_size=grid_size,
             local_grid_size=0,
             single_point=False,
