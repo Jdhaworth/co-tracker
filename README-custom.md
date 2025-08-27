@@ -100,3 +100,11 @@ python test_cotracker3_test_dataset.py
 - NumPy 1.26.0 fixes `torch.from_numpy` bug on aarch64.
 - Videos must have ≥32 frames (use check_video_frames.py to verify).
 - Wheels are hosted on Google Drive due to size; download from provided links.
+
+## Additional Setup
+- **Download baseline_online.pth**:
+  ```bash
+  wget -O ./checkpoints/baseline_online.pth 'https://huggingface.co/facebook/cotracker3/resolve/main/baseline_online.pth'
+  ```
+- **Download tapvid_davis.pkl**:
+  Obtain from the TAP-Vid dataset or CoTracker repository and place in ./data/tapvid/tapvid_davis/.
