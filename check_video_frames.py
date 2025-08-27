@@ -25,5 +25,9 @@ def check_videos(directory, min_frames=32):
             print(f"{video_path}: {frame_count} frames, {status}")
 
 if __name__ == "__main__":
-    train_dir = "/home/imerse/cotracker/data/custom/train"
+    train_dir = "./data/custom/train"
+    test_dir = "./data/custom/test"
+    eval_dir = "./data/custom/eval"
     check_videos(train_dir, min_frames=32)
+    check_videos(test_dir, min_frames=32)
+    check_videos(eval_dir, min_frames=32)

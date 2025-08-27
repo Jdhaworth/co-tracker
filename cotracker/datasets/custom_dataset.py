@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 from torch.utils.data import Dataset
 from cotracker.datasets.utils import CoTrackerData
+from torchvision.transforms import Resize
 
 class CustomDataset(Dataset):
     def __init__(
@@ -23,7 +24,7 @@ class CustomDataset(Dataset):
         max_seq_len: int = 1000,
     ):
         super().__init__()
-        self.data_root = os.path.join(data_root, split)  # e.g., /home/imerse/cotracker/data/custom/train
+        self.data_root = os.path.join(data_root, split)  # e.g., ./data/custom/train
         self.sequence_length = sequence_length
         self.crop_size = crop_size
         self.step = step
@@ -49,7 +50,8 @@ class CustomDataset(Dataset):
             ret, frame = cap.read()
             if not ret:
                 break
-            frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frames.append(frame)
         cap.release()
         return np.stack(frames)
 
@@ -60,13 +62,16 @@ class CustomDataset(Dataset):
             raise ValueError(f"Video {video_path} too short: {len(video)} frames")
         start = np.random.randint(0, len(video) - self.sequence_length * self.step + 1)
         video = video[start : start + self.sequence_length * self.step : self.step]
-        video = torch.from_numpy(video).permute(0, 3, 1, 2).float() / 255.0  # Normalize to [0,1]
+        video = torch.from_numpy(video).permute(0, 3, 1, 2).float() / 255.0
+        if self.crop_size is not None:
+            resize = Resize(self.crop_size)
+            video = resize(video)
 
         # Dummy tensors (to be replaced by teacher models in training)
         num_points = 128  # Matches --traj_per_sample
         trajectory = torch.zeros((self.sequence_length, num_points, 2), dtype=torch.float32)
         visibility = torch.ones((self.sequence_length, num_points), dtype=torch.bool)
-        valid = torch.ones((self.sequence_length, num_points), dtype=torch.bool)  # Add valid tensor
+        valid = torch.ones((self.sequence_length, num_points), dtype=torch.bool)
 
         return CoTrackerData(
             video=video,

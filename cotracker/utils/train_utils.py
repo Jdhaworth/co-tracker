@@ -37,11 +37,11 @@ def get_eval_dataloader(dataset_root, ds_name):
     collate_fn_local = collate_fn
     if ds_name == "tapvid_davis_first":
         eval_dataset = TapVidDataset(
-            dataset_type="davis", data_root="/home/imerse/cotracker/data/tapvid/tapvid_davis/tapvid_davis.pkl", queried_first=True
+            dataset_type="davis", data_root="./data/tapvid/tapvid_davis/tapvid_davis.pkl", queried_first=True
         )
     elif ds_name == "tapvid_davis_strided":
         eval_dataset = TapVidDataset(
-            dataset_type="davis", data_root="/home/imerse/cotracker/data/tapvid/tapvid_davis/tapvid_davis.pkl", queried_first=False
+            dataset_type="davis", data_root="./data/tapvid/tapvid_davis/tapvid_davis.pkl", queried_first=False
         )
     else:
         raise ValueError(f"Unsupported dataset: {ds_name}")
